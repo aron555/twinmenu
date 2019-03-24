@@ -308,13 +308,15 @@ class plgHikashopTwinmenu extends JPlugin {
             $query->clear();
 
         } else {
+		
+		$id_main_category = $this->params->get('id_main_category', null);
 
             $db = JFactory::getDBO();
             $query = $db->getQuery(true);
             $query
                 ->select($db->quoteName('#__hikashop_category.category_canonical'))
                 ->from($db->quoteName('#__hikashop_category'))
-                ->where($db->quoteName('category_id') . ' = ' . $db->quote('2'))
+                ->where($db->quoteName('category_id') . ' = ' . $db->quote($id_main_category))
             ;
             $db->setQuery($query);
             $main_category_canonical  = $db->loadResult();//каталог
