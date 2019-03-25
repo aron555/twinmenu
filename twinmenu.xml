@@ -143,6 +143,15 @@
                             filter="">
                     </field>
 
+                    <field name="show_menu_not_main_category" type="radio"
+                           default="0"
+                           class="btn-group btn-group-yesno"
+                           label="PLG_HIKASHOP_TWINMENU_SHOW_MENU_NOT_MAIN_CATEGORY"
+                    >
+                        <option value="1">JYES</option>
+                        <option value="0">JNO</option>
+                    </field>
+
 				</fieldset>
 			</fields>
 		</config>
