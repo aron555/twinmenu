@@ -30,10 +30,21 @@
 						   default="0"
 						   class="btn-group btn-group-yesno"
 						   label="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL"
+                           description="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL_DESCRIPTION"
 					>
 						<option value="1">JYES</option>
 						<option value="0">JNO</option>
 					</field>
+
+                    <field name="update_product" type="radio"
+                           default="0"
+                           class="btn-group btn-group-yesno"
+                           label="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT"
+                           description="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT_DESCRIPTION"
+                    >
+                        <option value="1">JYES</option>
+                        <option value="0">JNO</option>
+                    </field>
 
                     <field name="hika_type_menu" type="radio"
                            default="product"
