@@ -1,38 +1,38 @@
 <?php
 /**
-* @package	HikaShop for Joomla!
-* @version	2.3.0
-* @author	progreccor
-* @copyright	(C) 2010-2017 PROGRECCOR SOFTWARE. All rights reserved.
-* @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
-*/
+ * @package	HikaShop for Joomla!
+ * @version	2.3.0
+ * @author	progreccor
+ * @copyright	(C) 2010-2017 PROGRECCOR SOFTWARE. All rights reserved.
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 defined('_JEXEC') or die('Restricted access');
 
 /**
-* Plugin to for Hikashop
-* For more informations, see :
-* http://www.hikashop.com/support/documentation/62-hikashop-developer-documentation.html
-*/
+ * Plugin to for Hikashop
+ * For more informations, see :
+ * http://www.hikashop.com/support/documentation/62-hikashop-developer-documentation.html
+ */
 
 
 class plgHikashopTwinmenu extends JPlugin {
-	
-	protected $autoloadLanguage = true;
-	protected $menu;
-	protected $db;
-	protected $app;
-	protected $component_id;
-	protected $menuType;
+
+    protected $autoloadLanguage = true;
+    protected $menu;
+    protected $db;
+    protected $app;
+    protected $component_id;
+    protected $menuType;
 
 
-	public function plgHikashopTwinmenu(&$subject, $config)
-	{
-		parent::__construct($subject, $config);
-		$this->menu = $this->params->get('menu', null);
-		$this->component_id = JComponentHelper::getComponent('com_hikashop')->id;
-	}
+    public function plgHikashopTwinmenu(&$subject, $config)
+    {
+        parent::__construct($subject, $config);
+        $this->menu = $this->params->get('menu', null);
+        $this->component_id = JComponentHelper::getComponent('com_hikashop')->id;
+    }
 
-	public function onAfterCategoryUpdate(&$element) {
+    public function onAfterCategoryUpdate(&$element) {
 
         $update = $this->params->get('update', null);
         if ($update == "1") {
@@ -46,7 +46,8 @@ class plgHikashopTwinmenu extends JPlugin {
             $query
                 ->select($db->quoteName("id"))
                 ->from($db->quoteName("#__menu"))
-                ->where($db->quoteName('path') . ' = ' . $db->quote($category_path))
+                ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $element->category_id . '\"%'))
+                //->where($db->quoteName('path') . ' = ' . $db->quote($category_path))
                 ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
                 ->where($db->quoteName('published')  . ' >=  '. $db->quote('0'))
             ;
@@ -157,7 +158,7 @@ class plgHikashopTwinmenu extends JPlugin {
 
 
                 if ($hika_type_menu == "category") { //если выбрана категория, то добавляем для нее параметры
-                    $div_item_layout_type = "title"; // вывод категории, обращение?, если выбрана категория
+                    $div_item_layout_type = "img_title"; // вывод категории, title -  обращение?, если выбрана категория. img_title - изображение и название
                     $cols_cat = $this->params->get('cols_cat', null);
                     $rows_cat = $this->params->get('rows_cat', null);
                     $show_description = $this->params->get('show_description', null);
@@ -192,21 +193,22 @@ class plgHikashopTwinmenu extends JPlugin {
                     return true;
                 }
             } else {
-                $this->app->enqueueMessage("Соответствующий пункт меню не найден.", "warning");
+                return $this->onAfterCategoryCreate($element);
+                //$this->app->enqueueMessage("Соответствующий пункт меню не найден.", "warning");
 
             }
 
         }
     }
 
-	public function onAfterCategoryDelete(&$ids) {
+    public function onAfterCategoryDelete(&$ids) {
 
-		$menuTable = JTableNested::getInstance('Menu');
+        $menuTable = JTableNested::getInstance('Menu');
 
         $db = JFactory::getDBO();
         $query = $db->getQuery(true);
 
-		foreach ($ids as $id) {
+        foreach ($ids as $id) {
 
             mb_internal_encoding("UTF-8");
             $category_path = mb_substr($id->category_canonical, '1');//$category_path это каноникал категории без начального /
@@ -219,38 +221,38 @@ class plgHikashopTwinmenu extends JPlugin {
                 ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
                 ->where($db->quoteName('published')  . ' >=  '. $db->quote('0'));
 
-			try
-			{
-				$db->setQuery($query);
-				$data = $db->loadAssoc();
+            try
+            {
+                $db->setQuery($query);
+                $data = $db->loadAssoc();
                 $query->clear();
-				if(count($data)>0) {
-					$menu_id=$data["id"];
-					if($menuTable->delete($menu_id,false)) {
-						$this->app->enqueueMessage("Пункт меню <strong>".$data["title"]."</strong> удален.", "message");
-					} else {
-						$this->app->enqueueMessage("Соответствующий пункт меню не найден.", "warning");
-					}
-				} else {
-					$this->app->enqueueMessage("Соответствующий пункт меню не найден.", "warning");
-				}
+                if(count($data)>0) {
+                    $menu_id=$data["id"];
+                    if($menuTable->delete($menu_id,false)) {
+                        $this->app->enqueueMessage("Пункт меню <strong>".$data["title"]."</strong> удален.", "message");
+                    } else {
+                        $this->app->enqueueMessage("Соответствующий пункт меню не найден.", "warning");
+                    }
+                } else {
+                    $this->app->enqueueMessage("Соответствующий пункт меню не найден.", "warning");
+                }
 
-			}
-			catch (RuntimeException $e)
-			{
-				$this->app->enqueueMessage("Ошибка при удалении.","error");
-			}
+            }
+            catch (RuntimeException $e)
+            {
+                $this->app->enqueueMessage("Ошибка при удалении.","error");
+            }
 
-		}
+        }
 
-		$menuTable->rebuild();
+        $menuTable->rebuild();
 
-	}
+    }
 
     public function onAfterCategoryCreate(&$element)
     {
-	    if (!empty($element->category_id))
-	    {
+        if (!empty($element->category_id))
+        {
             $need_parent_alias = $this->params->get('need_parent_alias', null);
 
             $db = JFactory::getDBO();
@@ -310,12 +312,13 @@ class plgHikashopTwinmenu extends JPlugin {
             $db->execute();
             $query->clear();
 
+
+
+
             /*теперь на основе каноничкого адреса категории создадим пункт меню с этой категорией*/
             $hika_type_menu = $this->params->get('hika_type_menu', null);
             $cols_pr = $this->params->get('cols_pr', null);
             $rows_pr = $this->params->get('rows_pr', null);
-
-
 
             $show_menu_not_main_category = $this->params->get('show_menu_not_main_category', null);
             if ($show_menu_not_main_category == "0") {
@@ -333,18 +336,18 @@ class plgHikashopTwinmenu extends JPlugin {
                     ->select($db->quoteName("path"))
                     ->from($db->quoteName("#__menu"))
                     //->where($db->quoteName('path') . ' LIKE ' . $db->quote('%' . $element->category_canonical . '%'))
-                    ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $element->category_parent_id . '\"%'))
+                    ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $element->category_id . '\"%'))
                     ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
                     //->where($db->quoteName('published')  . ' >=  '. $db->quote('0'))
                 ;
                 $db->setQuery($query);
-                $menu_path  = $db->loadResult();//каноническая ссылка категории типа каталог
+                $menu_path  = $db->loadResult();//path родительского пункта меню
                 $query->clear();
 
                 mb_internal_encoding("UTF-8");
                 $main_category_path = mb_substr($main_category_canonical, '1');//$category_path это каноникал категории без начального /
 
-                if (strpos($menu_path, $main_category_path) !== false) // именно через жесткое сравнение
+                if (strpos($menu_path, $main_category_path) !== false) //если каноническая ссылка типа каталог является частью path родительского пункта меню
                 {
                     $menu_show = "1";
                 } else {
@@ -367,68 +370,68 @@ class plgHikashopTwinmenu extends JPlugin {
                 $link = 'index.php?option=com_hikashop&view=product&layout=listing';
             }
 
-		    $menuTable = JTableNested::getInstance('Menu');
-		    $menuData  = array(
-			    'menutype'     => $this->menu, /* Тип меню должен быть латиницей и быть уникальным*/
-			    'title'        => $element->category_name,
+            $menuTable = JTableNested::getInstance('Menu');
+            $menuData  = array(
+                'menutype'     => $this->menu, /* Тип меню должен быть латиницей и быть уникальным*/
+                'title'        => $element->category_name,
                 'alias'        => $full_alias,
-			    'link'         => $link, /* URL  меню   например  :index.php?com_yourcomponent&......     */
-			    'type'         => 'component',  /* внутренний тип меню*/
-			    'component_id' => $this->component_id,     /* ID компонента в #__extensions  */
-			    'language'     => '*',
+                'link'         => $link, /* URL  меню   например  :index.php?com_yourcomponent&......     */
+                'type'         => 'component',  /* внутренний тип меню*/
+                'component_id' => $this->component_id,     /* ID компонента в #__extensions  */
+                'language'     => '*',
                 'published'    => $element->category_published,
-			    'params'       => $hika_type
-		    );
+                'params'       => $hika_type
+            );
 
-		    if ($element->category_parent_id == 1)/* если это лежит  в главной категории (каталог) */
-		    {
-			    $parent_id = 1;// то родительский элемент пункта меню - корневой
-		    } else
-		    {
+            if ($element->category_parent_id == 1)/* если это лежит  в главной категории (каталог) */
+            {
+                $parent_id = 1;// то родительский элемент пункта меню - корневой
+            } else
+            {
                 $query
                     ->select($db->quoteName("id"))
                     ->from($db->quoteName("#__menu"))
-                    ->where($db->quoteName('path') . ' LIKE ' . $db->quote('%' . $element->category_canonical . '%'))
+                    //->where($db->quoteName('path') . ' LIKE ' . $db->quote('%' . $element->category_canonical . '%'))
                     ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $element->category_parent_id . '\"%'))
                     ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
                     ->where($db->quoteName('published')  . ' >=  '. $db->quote('0'));
 
-			    try
-			    {
-				    $db->setQuery($query);
-				    $data = $db->loadAssoc();
+                try
+                {
+                    $db->setQuery($query);
+                    $data = $db->loadAssoc();
                     $query->clear();
-				    if (count($data) > 0)
-				    {
-					    $parent_id = $data["id"];
-				    }
-				    else
-				    {
-					    $this->app->enqueueMessage("Родительский пункт меню для <strong>" . $element->category_name . "</strong> не найден. Объект помещен в корень меню.", "warning");
-					    $parent_id = 1;
-				    }
+                    if (count($data) > 0)
+                    {
+                        $parent_id = $data["id"];
+                    }
+                    else
+                    {
+                        $this->app->enqueueMessage("Родительский пункт меню для <strong>" . $element->category_name . "</strong> не найден. Объект помещен в корень меню.", "warning");
+                        $parent_id = 1;
+                    }
 
-			    }
-			    catch (RuntimeException $e)
-			    {
-				    $this->app->enqueueMessage("Ошибка.", "error");
-			    }
-		    }
+                }
+                catch (RuntimeException $e)
+                {
+                    $this->app->enqueueMessage("Ошибка.", "error");
+                }
+            }
 
-		    $menuTable->setLocation($parent_id, 'last-child');
-		    if (!$menuTable->save($menuData))
-		    {
-			    $this->app->enqueueMessage("Ошибка.", "error");
+            $menuTable->setLocation($parent_id, 'last-child');
+            if (!$menuTable->save($menuData))
+            {
+                $this->app->enqueueMessage("Ошибка.", "error");
 
-			    return false;
-		    }
-		    $this->app->enqueueMessage("Пункт меню <strong>" . $element->category_name . "</strong> в меню <strong>" . $this->menu . "</strong> создан.");
+                return false;
+            }
+            $this->app->enqueueMessage("Пункт меню <strong>" . $element->category_name . "</strong> в меню <strong>" . $this->menu . "</strong> создан.");
 
-		    return true;
+            return true;
 
-	    } else {
-		    $this->app->enqueueMessage("Это старая версия hikashop. Обновите. ", "warning");
-	    }
+        } else {
+            $this->app->enqueueMessage("Это старая версия hikashop. Обновите. ", "warning");
+        }
     }
 
 
