@@ -1,158 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<extension type="plugin" version="1.1" method="upgrade" group="hikashop">
-		<name>Twin Menu for Hikashop</name>
-		<creationDate>March 2017</creationDate>
-		<version>1.1</version>
-		<author>Progreccor</author>
-		<authorEmail>progreccor@yandex.ru</authorEmail>
-		<authorUrl>http://hu5.ru</authorUrl>
-		<copyright>(C) 2017-2017 PROGRECCOR SOFTWARE. All rights reserved.</copyright>
-		<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-		<description>Create twin menu for Hikashop</description>
-		<files>
-			<filename plugin="twinmenu">twinmenu.php</filename>
-			<filename>index.html</filename>
-			<folder>language</folder>
-		</files>
-		<config>
-			<fields name="params">
-				<fieldset name="basic">
+<extension type="plugin" version="1.1" method="upgrade" group="hikashop">
+    <name>Twin Menu for Hikashop</name>
+    <creationDate>March 2017</creationDate>
+    <version>1.1</version>
+    <author>Progreccor</author>
+    <authorEmail>progreccor@yandex.ru</authorEmail>
+    <authorUrl>http://hu5.ru</authorUrl>
+    <copyright>(C) 2017-2017 PROGRECCOR SOFTWARE. All rights reserved.</copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <description>Create twin menu for Hikashop</description>
+    <files>
+        <filename plugin="twinmenu">twinmenu.php</filename>
+        <filename>index.html</filename>
+        <folder>language</folder>
+    </files>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
 
-					<field
-							name="menu"
-							type="menu"
-							label="PLG_HIKASHOP_TWINMENU_CHOOSE_MENU_LABEL"
-							required="false"
-							default="">
-					</field>
+                <field
+                        name="menu"
+                        type="menu"
+                        label="PLG_HIKASHOP_TWINMENU_CHOOSE_MENU_LABEL"
+                        required="false"
+                        default="">
+                </field>
 
-					<field name="update" type="radio"
-						   default="0"
-						   class="btn-group btn-group-yesno"
-						   label="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL"
-                           description="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL_DESCRIPTION"
-					>
-						<option value="1">JYES</option>
-						<option value="0">JNO</option>
-					</field>
+                <field name="update" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL"
+                       description="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
 
-                    <field name="update_product" type="radio"
-                           default="0"
-                           class="btn-group btn-group-yesno"
-                           label="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT"
-                           description="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT_DESCRIPTION"
-                    >
-                        <option value="1">JYES</option>
-                        <option value="0">JNO</option>
-                    </field>
+                <field name="update_product" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT"
+                       description="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
 
-                    <field name="hika_type_menu" type="radio"
-                           default="product"
-                           class="btn-group btn-group-yesno"
-                           label="PLG_HIKASHOP_TWINMENU_HIKA_TYPE_MENU"
-                    >
-                        <option value="category">category</option>
-                        <option value="product">product</option>
-                    </field>
+                <field name="hika_type_menu" type="radio"
+                       default="product"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_HIKA_TYPE_MENU"
+                >
+                    <option value="category">category</option>
+                    <option value="product">product</option>
+                </field>
 
-                    <field
-                            name="cols_pr"
-                            type="text"
-                            label="PLG_HIKASHOP_TWINMENU_COLS_PR"
-                            description="PLG_HIKASHOP_TWINMENU_COLS_PR_DESCRIPTION"
-                            required="false"
-                            default="3"
-                            size="10"
-                            class="input-large"
-                            readonly="false"
-                            disabled="false"
-                            filter="">
-                    </field>
+                <field
+                        name="cols_pr"
+                        type="text"
+                        label="PLG_HIKASHOP_TWINMENU_COLS_PR"
+                        description="PLG_HIKASHOP_TWINMENU_COLS_PR_DESCRIPTION"
+                        required="false"
+                        default="3"
+                        size="10"
+                        class="input-large"
+                        readonly="false"
+                        disabled="false"
+                        filter="">
+                </field>
 
-                    <field
-                            name="rows_pr"
-                            type="text"
-                            label="PLG_HIKASHOP_TWINMENU_ROWS_PR"
-                            description="PLG_HIKASHOP_TWINMENU_ROWS_PR_DESCRIPTION"
-                            required="false"
-                            default="6"
-                            size="10"
-                            class="input-large"
-                            readonly="false"
-                            disabled="false"
-                            filter="">
-                    </field>
+                <field
+                        name="rows_pr"
+                        type="text"
+                        label="PLG_HIKASHOP_TWINMENU_ROWS_PR"
+                        description="PLG_HIKASHOP_TWINMENU_ROWS_PR_DESCRIPTION"
+                        required="false"
+                        default="6"
+                        size="10"
+                        class="input-large"
+                        readonly="false"
+                        disabled="false"
+                        filter="">
+                </field>
 
-                    <field
-                            name="cols_cat"
-                            type="text"
-                            label="PLG_HIKASHOP_TWINMENU_COLS_CAT"
-                            description="PLG_HIKASHOP_TWINMENU_COLS_CAT_DESCRIPTION"
-                            required="false"
-                            default="3"
-                            size="10"
-                            class="input-large"
-                            readonly="false"
-                            disabled="false"
-                            filter="">
-                    </field>
+                <field
+                        name="cols_cat"
+                        type="text"
+                        label="PLG_HIKASHOP_TWINMENU_COLS_CAT"
+                        description="PLG_HIKASHOP_TWINMENU_COLS_CAT_DESCRIPTION"
+                        required="false"
+                        default="3"
+                        size="10"
+                        class="input-large"
+                        readonly="false"
+                        disabled="false"
+                        filter="">
+                </field>
 
-                    <field
-                            name="rows_cat"
-                            type="text"
-                            label="PLG_HIKASHOP_TWINMENU_ROWS_CAT"
-                            description="PLG_HIKASHOP_TWINMENU_ROWS_CAT_DESCRIPTION"
-                            required="false"
-                            default="6"
-                            size="10"
-                            class="input-large"
-                            readonly="false"
-                            disabled="false"
-                            filter="">
-                    </field>
+                <field
+                        name="rows_cat"
+                        type="text"
+                        label="PLG_HIKASHOP_TWINMENU_ROWS_CAT"
+                        description="PLG_HIKASHOP_TWINMENU_ROWS_CAT_DESCRIPTION"
+                        required="false"
+                        default="6"
+                        size="10"
+                        class="input-large"
+                        readonly="false"
+                        disabled="false"
+                        filter="">
+                </field>
 
-                    <field name="show_description" type="radio"
-                           default="0"
-                           class="btn-group btn-group-yesno"
-                           label="PLG_HIKASHOP_TWINMENU_SHOW_DESCRIPTION"
-                    >
-                        <option value="1">JYES</option>
-                        <option value="0">JNO</option>
-                    </field>
+                <field name="show_description" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_SHOW_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
 
-                    <field name="need_parent_alias" type="radio"
-                           default="0"
-                           class="btn-group btn-group-yesno"
-                           label="PLG_HIKASHOP_TWINMENU_NEED_PARENT_ALIAS"
-                    >
-                        <option value="need_parent_alias">JYES</option>
-                        <option value="0">JNO</option>
-                    </field>
+                <field name="need_parent_alias" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_NEED_PARENT_ALIAS"
+                >
+                    <option value="need_parent_alias">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
 
-                    <field
-                            name="id_main_category"
-                            type="text"
-                            label="PLG_HIKASHOP_TWINMENU_ID_MAIN_CATEGORY"
-                            description="PLG_HIKASHOP_TWINMENU_ID_MAIN_CATEGORY_DESCRIPTION"
-                            required="false"
-                            default="2"
-                            size="10"
-                            class="input-large"
-                            readonly="false"
-                            disabled="false"
-                            filter="">
-                    </field>
+                <field
+                        name="id_main_category"
+                        type="text"
+                        label="PLG_HIKASHOP_TWINMENU_ID_MAIN_CATEGORY"
+                        description="PLG_HIKASHOP_TWINMENU_ID_MAIN_CATEGORY_DESCRIPTION"
+                        required="false"
+                        default="2"
+                        size="10"
+                        class="input-large"
+                        readonly="false"
+                        disabled="false"
+                        filter="">
+                </field>
 
-                    <field name="show_menu_not_main_category" type="radio"
-                           default="0"
-                           class="btn-group btn-group-yesno"
-                           label="PLG_HIKASHOP_TWINMENU_SHOW_MENU_NOT_MAIN_CATEGORY"
-                    >
-                        <option value="1">JYES</option>
-                        <option value="0">JNO</option>
-                    </field>
+                <field name="show_menu_not_main_category" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_SHOW_MENU_NOT_MAIN_CATEGORY"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
 
-				</fieldset>
-			</fields>
-		</config>
-	</extension> 
+                <field name="create_canonical_product" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_CREATE_CANONICAL_PRODUCT"
+                       description="PLG_HIKASHOP_TWINMENU_CREATE_CANONICAL_PRODUCT_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+            </fieldset>
+        </fields>
+    </config>
+</extension>
