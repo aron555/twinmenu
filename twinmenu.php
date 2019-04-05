@@ -546,11 +546,11 @@ class plgHikashopTwinmenu extends JPlugin {
                         ->where($db->quoteName('category_id') . ' IN (' . implode(',', $element->categories) . ')')
                         ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'));
                     $db->setQuery($query);
-                    $category_canonical = $db->loadResult();//канонический категории (каталог) наибольшей вложенности
+                    $category_canonical = $db->loadResult();//каноническая ссылка категории (каталог) наибольшей вложенности
                     $query->clear();
                 }
 
-                /*на основе канонической ссылки категории, получаем алиас*/
+                /*на основе канонической ссылки категории, получаем алиас товара*/
                 $product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //каноничский продукта
 
                 $fields = array(
