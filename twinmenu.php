@@ -53,7 +53,7 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->cols_cat = $this->params->get('cols_cat', null);
         $this->rows_cat = $this->params->get('rows_cat', null);
         $this->show_description = $this->params->get('show_description', null);
-        $this->div_item_layout_type = "img_title"; // вывод категории, title -  обращение, img_title - изображение и название
+        $this->div_item_layout_type = $this->params->get('div_item_layout_type', null); // вывод категории, title -  обращение, img_title - изображение и название
         $this->id_main_category = $this->params->get('id_main_category', null);//категория типа каталог
         $this->create_canonical_product = $this->params->get('create_canonical_product', null);
     }
