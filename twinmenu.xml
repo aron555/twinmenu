@@ -162,6 +162,17 @@
                     <option value="0">JNO</option>
                 </field>
 
+                <field
+                        name="div_item_layout_type"
+                        type="list"
+                        label="PLG_HIKASHOP_TWINMENU_DIV_ITEM_LAYOUT_LABEL"
+                        required="false"
+                        default="title"
+                >
+                    <option value="title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_TITLE</option>
+                    <option value="img_title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_IMG_TITLE</option>
+                </field>
+
             </fieldset>
         </fields>
     </config>
