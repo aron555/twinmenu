@@ -35,6 +35,7 @@ class plgHikashopTwinmenu extends JPlugin {
     protected $show_description;
     protected $div_item_layout_type;
     protected $id_main_category;
+    protected $create_canonical_product;
 
 
     public function plgHikashopTwinmenu(&$subject, $config)
@@ -54,6 +55,7 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->show_description = $this->params->get('show_description', null);
         $this->div_item_layout_type = "img_title"; // вывод категории, title -  обращение, img_title - изображение и название
         $this->id_main_category = $this->params->get('id_main_category', null);//категория типа каталог
+        $this->create_canonical_product = $this->params->get('create_canonical_product', null);
     }
 
     public function onAfterCategoryUpdate(&$element) {
@@ -435,7 +437,8 @@ class plgHikashopTwinmenu extends JPlugin {
 
     public function onAfterProductCreate(&$element)
     {
-        if (!empty($element->product_id)) {
+
+        if (!empty($element->product_id) && $this->create_canonical_product == "1") {
             $db = JFactory::getDBO();
             $query = $db->getQuery(true);
 
@@ -502,70 +505,69 @@ class plgHikashopTwinmenu extends JPlugin {
 
     public function onAfterProductUpdate(&$element)
     {
-        if (!empty($element->product_id)) {
+        if (!empty($element->product_id) && $this->update_product == "1") {
 
-            if ($this->update_product == "1") {
-                $db = JFactory::getDBO();
-                $query = $db->getQuery(true);
+            $db = JFactory::getDBO();
+            $query = $db->getQuery(true);
 
-                //Если у продукта всего одна категория, то все просто, берем ее
-                if (count($element->categories) == 1) {
-                    $query
-                        ->select($db->quoteName('#__hikashop_category.category_canonical'))
-                        ->from($db->quoteName('#__hikashop_category'))
-                        ->where($db->quoteName('category_id') . ' = ' . $db->quote($element->categories[0]));
-                    $db->setQuery($query);
-                    $category_canonical = $db->loadResult();
-                    $query->clear();
+            //Если у продукта всего одна категория, то все просто, берем ее
+            if (count($element->categories) == 1) {
+                $query
+                    ->select($db->quoteName('#__hikashop_category.category_canonical'))
+                    ->from($db->quoteName('#__hikashop_category'))
+                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($element->categories[0]));
+                $db->setQuery($query);
+                $category_canonical = $db->loadResult();
+                $query->clear();
 
-                } else {
-                    /*иначе сложнее. будем искать максимально глубоко вложенную категорию только внутри категории типа каталог */
-
-                    $query
-                        ->select($db->quoteName('#__hikashop_category.category_canonical'))
-                        ->from($db->quoteName('#__hikashop_category'))
-                        ->where($db->quoteName('category_id') . ' = ' . $db->quote($this->id_main_category));
-                    $db->setQuery($query);
-                    $main_category_canonical = $db->loadResult();//каноническая ссылка категории типа каталог
-                    $query->clear();
-
-                    $query
-                        ->select($db->quoteName('#__hikashop_category.category_depth'))
-                        ->from($db->quoteName('#__hikashop_category'))
-                        ->where($db->quoteName('category_id') . ' IN (' . implode(',', $element->categories) . ')')
-                        ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'));
-                    $db->setQuery($query);
-                    $depths = $db->loadObjectList();
-                    $maxdepth = max($depths)->category_depth;//наибольшая вложенность среди всех категорий продукта, но в категории типа каталог
-                    $query->clear();
-
-                    $query
-                        ->select($db->quoteName('#__hikashop_category.category_canonical'))
-                        ->from($db->quoteName('#__hikashop_category'))
-                        ->where($db->quoteName('category_depth') . ' = ' . $db->quote($maxdepth))
-                        ->where($db->quoteName('category_id') . ' IN (' . implode(',', $element->categories) . ')')
-                        ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'));
-                    $db->setQuery($query);
-                    $category_canonical = $db->loadResult();//каноническая ссылка категории (каталог) наибольшей вложенности
-                    $query->clear();
-                }
-
-                /*на основе канонической ссылки категории, получаем алиас товара*/
-                $product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //каноничский продукта
-
-                $fields = array(
-                    $db->quoteName('product_alias') . ' = ' . $db->quote(JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU')),
-                    $db->quoteName('product_canonical') . ' = ' . $db->quote($product_canonical)
-                );
+            } else {
+                /*иначе сложнее. будем искать максимально глубоко вложенную категорию только внутри категории типа каталог */
 
                 $query
-                    ->update('#__hikashop_product')
-                    ->set($fields)
-                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($element->product_id));
+                    ->select($db->quoteName('#__hikashop_category.category_canonical'))
+                    ->from($db->quoteName('#__hikashop_category'))
+                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($this->id_main_category));
                 $db->setQuery($query);
-                $db->execute();
+                $main_category_canonical = $db->loadResult();//каноническая ссылка категории типа каталог
+                $query->clear();
+
+                $query
+                    ->select($db->quoteName('#__hikashop_category.category_depth'))
+                    ->from($db->quoteName('#__hikashop_category'))
+                    ->where($db->quoteName('category_id') . ' IN (' . implode(',', $element->categories) . ')')
+                    ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'));
+                $db->setQuery($query);
+                $depths = $db->loadObjectList();
+                $maxdepth = max($depths)->category_depth;//наибольшая вложенность среди всех категорий продукта, но в категории типа каталог
+                $query->clear();
+
+                $query
+                    ->select($db->quoteName('#__hikashop_category.category_canonical'))
+                    ->from($db->quoteName('#__hikashop_category'))
+                    ->where($db->quoteName('category_depth') . ' = ' . $db->quote($maxdepth))
+                    ->where($db->quoteName('category_id') . ' IN (' . implode(',', $element->categories) . ')')
+                    ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'));
+                $db->setQuery($query);
+                $category_canonical = $db->loadResult();//каноническая ссылка категории (каталог) наибольшей вложенности
                 $query->clear();
             }
+
+            /*на основе канонической ссылки категории, получаем алиас товара*/
+            $product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //каноничский продукта
+
+            $fields = array(
+                $db->quoteName('product_alias') . ' = ' . $db->quote(JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU')),
+                $db->quoteName('product_canonical') . ' = ' . $db->quote($product_canonical)
+            );
+
+            $query
+                ->update('#__hikashop_product')
+                ->set($fields)
+                ->where($db->quoteName('product_id') . ' = ' . $db->quote($element->product_id));
+            $db->setQuery($query);
+            $db->execute();
+            $query->clear();
+
         }
 
     }
