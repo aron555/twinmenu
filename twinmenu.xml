@@ -2,11 +2,11 @@
 <extension type="plugin" version="1.1" method="upgrade" group="hikashop">
     <name>Twin Menu for Hikashop</name>
     <creationDate>March 2017</creationDate>
-    <version>1.1</version>
+    <version>1.2</version>
     <author>Progreccor</author>
     <authorEmail>progreccor@yandex.ru</authorEmail>
-    <authorUrl>http://hu5.ru</authorUrl>
-    <copyright>(C) 2017-2017 PROGRECCOR SOFTWARE. All rights reserved.</copyright>
+    <authorUrl>http://hika.su</authorUrl>
+    <copyright>(C) 2017-2019 PROGRECCOR SOFTWARE. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
     <description>Create twin menu for Hikashop</description>
     <files>
@@ -26,21 +26,41 @@
                         default="">
                 </field>
 
-                <field name="update" type="radio"
-                       default="0"
+                <field name="create_category" type="radio"
+                       default="1"
                        class="btn-group btn-group-yesno"
-                       label="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL"
-                       description="PLG_HIKASHOP_TWINMENU_ON_OFF_LABEL_DESCRIPTION"
+                       label="PLG_HIKASHOP_TWINMENU_CREATE_CATEGORY"
+                       description="PLG_HIKASHOP_TWINMENU_CREATE_CATEGORY_DESCRIPTION"
                 >
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
 
-                <field name="update_product" type="radio"
+                <field name="update_category" type="radio"
+                       default="1"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_UPDATE_CATEGORY"
+                       description="PLG_HIKASHOP_TWINMENU_UPDATE_CATEGORY_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field name="update_canonical_product_when_change_category" type="radio"
                        default="0"
                        class="btn-group btn-group-yesno"
-                       label="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT"
-                       description="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT_DESCRIPTION"
+                       label="PLG_HIKASHOP_TWINMENU_UPDATE_CANONICAL_PRODUCT_WHEN_CHANGE_CATEGORY"
+                       description="PLG_HIKASHOP_TWINMENU_UPDATE_CANONICAL_PRODUCT_WHEN_CHANGE_CATEGORY_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field name="update_menu" type="radio"
+                       default="1"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_UPDATE_MENU"
+                       description="PLG_HIKASHOP_TWINMENU_UPDATE_MENU_DESCRIPTION"
                 >
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
@@ -50,6 +70,7 @@
                        default="product"
                        class="btn-group btn-group-yesno"
                        label="PLG_HIKASHOP_TWINMENU_HIKA_TYPE_MENU"
+                       description="PLG_HIKASHOP_TWINMENU_HIKA_TYPE_MENU_DESCRIPTION"
                 >
                     <option value="category">category</option>
                     <option value="product">product</option>
@@ -125,7 +146,7 @@
                        class="btn-group btn-group-yesno"
                        label="PLG_HIKASHOP_TWINMENU_NEED_PARENT_ALIAS"
                 >
-                    <option value="need_parent_alias">JYES</option>
+                    <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
 
@@ -152,6 +173,31 @@
                     <option value="0">JNO</option>
                 </field>
 
+                <field
+                        name="div_item_layout_type"
+                        type="list"
+                        label="PLG_HIKASHOP_TWINMENU_DIV_ITEM_LAYOUT_LABEL"
+                        required="false"
+                        default="title"
+                >
+                    <option value="title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_TITLE</option>
+                    <option value="img_title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_IMG_TITLE</option>
+                </field>
+
+                <field
+                        name="conditions_menu"
+                        type="list"
+                        label="PLG_HIKASHOP_TWINMENU_CONDITIONS_MENU"
+                        required="false"
+                        default="params"
+                >
+                    <option value="params">PLG_HIKASHOP_TWINMENU_CONDITIONS_MENU_PARAMS</option>
+                    <option value="path">PLG_HIKASHOP_TWINMENU_CONDITIONS_MENU_PATH</option>
+                    <option value="title">PLG_HIKASHOP_TWINMENU_CONDITIONS_MENU_TITLE</option>
+                    <option value="alias">PLG_HIKASHOP_TWINMENU_CONDITIONS_MENU_ALIAS</option>
+                </field>
+
+
                 <field name="create_canonical_product" type="radio"
                        default="0"
                        class="btn-group btn-group-yesno"
@@ -162,15 +208,24 @@
                     <option value="0">JNO</option>
                 </field>
 
-                <field
-                        name="div_item_layout_type"
-                        type="list"
-                        label="PLG_HIKASHOP_TWINMENU_DIV_ITEM_LAYOUT_LABEL"
-                        required="false"
-                        default="title"
+                <field name="update_product" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT"
+                       description="PLG_HIKASHOP_TWINMENU_UPDATE_PRODUCT_DESCRIPTION"
                 >
-                    <option value="title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_TITLE</option>
-                    <option value="img_title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_IMG_TITLE</option>
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field name="mass_update" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_MASS_UPDATE"
+                       description="PLG_HIKASHOP_TWINMENU_MASS_UPDATE_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
                 </field>
 
             </fieldset>
