@@ -826,7 +826,7 @@ class plgHikashopTwinmenu extends JPlugin {
             } else {// если пункт меню с нужной категорией существует и его нужно обновить
                 $count_menu_exists++;
 
-                if ($this->update_menu == "1") {
+                //if ($this->update_menu == "1") {
 
                     $fields_menu = array(
                         $db->quoteName('title') . ' = ' . $db->quote($category->category_name),
@@ -852,7 +852,7 @@ class plgHikashopTwinmenu extends JPlugin {
                         $this->setError($menuTable->getError());
                         return false;
                     }
-                }
+                //}
             }
 
         }
@@ -912,7 +912,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query->clear();
 
 
-            } else {// частный случай с одинаковой глубиной (тест)
+            } else {// частный случай (тест)
 
                 /*иначе сложнее. будем искать максимально глубоко вложенную категорию только внутри категории типа каталог */
 
@@ -981,5 +981,5 @@ class plgHikashopTwinmenu extends JPlugin {
 
         }
     }
-    
+
 }
