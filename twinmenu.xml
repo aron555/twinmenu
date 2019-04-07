@@ -150,7 +150,7 @@
                     <option value="0">JNO</option>
                 </field>
 
-                <field
+                <!--<field
                         name="id_main_category"
                         type="text"
                         label="PLG_HIKASHOP_TWINMENU_ID_MAIN_CATEGORY"
@@ -162,7 +162,7 @@
                         readonly="false"
                         disabled="false"
                         filter="">
-                </field>
+                </field>-->
 
                 <field name="show_menu_not_main_category" type="radio"
                        default="0"
