@@ -41,6 +41,7 @@ class plgHikashopTwinmenu extends JPlugin {
     protected $conditions_menu;
     protected $create_category;
     protected $mass_update;
+    protected $config;
 
 
     public function plgHikashopTwinmenu(&$subject, $config)
@@ -58,7 +59,6 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->rows_cat = $this->params->get('rows_cat', null);
         $this->show_description = $this->params->get('show_description', null);
         $this->div_item_layout_type = $this->params->get('div_item_layout_type', null); // вывод категории, title -  обращение, img_title - изображение и название
-        $this->id_main_category = $this->params->get('id_main_category', null);//категория типа каталог
         $this->create_canonical_product = $this->params->get('create_canonical_product', null);
         $this->update_canonical_product_when_change_category = $this->params->get('update_canonical_product_when_change_category', null);
         $this->update_category = $this->params->get('update_category', null);
@@ -66,6 +66,12 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->conditions_menu = $this->params->get('conditions_menu', null);
         $this->create_category = $this->params->get('create_category', null);
         $this->mass_update = $this->params->get('mass_update', null);
+
+        //$this->id_main_category = $this->params->get('id_main_category', null);//категория типа каталог
+        $this->config = hikashop_config();
+        $default_params = $this->config->get('default_params', '');//
+        $this->id_main_category = $default_params['selectparentlisting'];//Главная категория
+
 
         if ($this->mass_update == "1") {
             return $this->MassUpdate();
