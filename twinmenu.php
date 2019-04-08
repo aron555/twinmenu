@@ -562,7 +562,11 @@ class plgHikashopTwinmenu extends JPlugin {
 
     public function onAfterProductUpdate(&$element)
     {
-        if (!empty($element->product_id) && $this->update_product == "1") {
+        $uri = JUri::getInstance();
+        $link = $uri->toString();
+
+
+        if (!empty($element->product_id) && $this->update_product == "1" && strpos($link, '/administrator/') !== false) {
 
             $db = JFactory::getDBO();
             $query = $db->getQuery(true);
@@ -703,12 +707,12 @@ class plgHikashopTwinmenu extends JPlugin {
             $category_canonical =  $parent_canonical . '/' . $full_alias;//canonical категории = canonical родительской категории + алиас категории
 
             //if ($this->update_category == "1") {//если алиасы и канонические категорий нужно обновить
-                $fields = array(
-                    $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
-                    $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
-                    //$db->quoteName('category_keywords') . ' = ' . $db->quote($parent_alias.', '.$category_alias.', '.$category->category_name),
-                    //$db->quoteName('category_meta_description') . ' = ' . $db->quote($parent_alias.' '.$category_alias.' '.$category->category_name)
-                );
+            $fields = array(
+                $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
+                //$db->quoteName('category_keywords') . ' = ' . $db->quote($parent_alias.', '.$category_alias.', '.$category->category_name),
+                //$db->quoteName('category_meta_description') . ' = ' . $db->quote($parent_alias.' '.$category_alias.' '.$category->category_name)
+            );
             //}
             /*else {
                 if ($category->category_alias == "") {//если алиасы категорий пустые
@@ -834,37 +838,37 @@ class plgHikashopTwinmenu extends JPlugin {
 
                 //if ($this->update_menu == "1") {
 
-                    $fields_menu = array(
-                        $db->quoteName('title') . ' = ' . $db->quote($category->category_name),
-                        $db->quoteName('alias') . ' = ' . $db->quote($full_alias),
-                        $db->quoteName('params') . ' = ' . $db->quote($hika_type),
-                        $db->quoteName('link') . ' = ' . $db->quote($link)
-                    );
-                    $query
-                        ->update('#__menu')
-                        ->set($fields_menu)
-                        ->where($db->quoteName('id') . ' = ' . $db->quote($data_menu[0]->id))
-                        ->where($db->quoteName('published') . ' >= ' . $db->quote('0'))
-                        ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu));
-                    $db->setQuery($query);
-                    if ($db->execute()) {
-                        $count_menu_update++;
-                    }
-                    $query->clear();
+                $fields_menu = array(
+                    $db->quoteName('title') . ' = ' . $db->quote($category->category_name),
+                    $db->quoteName('alias') . ' = ' . $db->quote($full_alias),
+                    $db->quoteName('params') . ' = ' . $db->quote($hika_type),
+                    $db->quoteName('link') . ' = ' . $db->quote($link)
+                );
+                $query
+                    ->update('#__menu')
+                    ->set($fields_menu)
+                    ->where($db->quoteName('id') . ' = ' . $db->quote($data_menu[0]->id))
+                    ->where($db->quoteName('published') . ' >= ' . $db->quote('0'))
+                    ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu));
+                $db->setQuery($query);
+                if ($db->execute()) {
+                    $count_menu_update++;
+                }
+                $query->clear();
 
-                    $menuTable = JTableNested::getInstance('Menu');
-                    // Rebuild the tree path.
-                    if (!$menuTable->rebuildPath($data_menu[0]->id)) {
-                        $this->setError($menuTable->getError());
-                        return false;
-                    }
+                $menuTable = JTableNested::getInstance('Menu');
+                // Rebuild the tree path.
+                if (!$menuTable->rebuildPath($data_menu[0]->id)) {
+                    $this->setError($menuTable->getError());
+                    return false;
+                }
                 //}
             }
 
         }
 
 
-//На основе канонические адресов категорий, создаем продукт каноникал и записываем его
+//На основе канонических ссылок категорий, создаем продукт каноникал и записываем его
         $query
             ->select('*')
             ->from($db->quoteName('#__hikashop_product'))
