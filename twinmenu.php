@@ -878,7 +878,6 @@ class plgHikashopTwinmenu extends JPlugin {
             ->select('*')
             ->from($db->quoteName('#__hikashop_product'))
             ->where($db->quoteName('product_type') . ' = ' . $db->quote('main'))
-            ->group($db->quoteName('#__hikashop_product.product_id') . ' ASC')
         ;
         $db->setQuery($query);
         $product_datas = $db->loadObjectList();//all main products
@@ -886,7 +885,6 @@ class plgHikashopTwinmenu extends JPlugin {
 
         foreach ($product_datas as $product_data) {
 
-            $query = $db->getQuery(true);//
             $query
                 ->select('category_id')
                 ->from($db->quoteName('#__hikashop_product_category'))
@@ -910,10 +908,10 @@ class plgHikashopTwinmenu extends JPlugin {
 
                 if (!preg_match("/^[0-9]{1}/", $product_data->product_name)) {
                     /*на основе канонической ссылки категории, получаем алиас товара*/
-                    $product_canonical = $category_canonical[0] . '/' . JApplicationHelper::stringURLSafe($product_data->product_name, 'ru-RU'); //каноничский продукта
+                    $product_canonical = $category_canonical[0]->category_canonical . '/' . JApplicationHelper::stringURLSafe($product_data->product_name, 'ru-RU'); //каноничский продукта
                 } else {
                     /*на основе канонической ссылки категории, получаем алиас товара*/
-                    $product_canonical = $category_canonical[0] . '/p' . JApplicationHelper::stringURLSafe($product_data->product_name, 'ru-RU'); //каноничский продукта
+                    $product_canonical = $category_canonical[0]->category_canonical . '/p' . JApplicationHelper::stringURLSafe($product_data->product_name, 'ru-RU'); //каноничский продукта
                 }
 
                 $fields_product = array(
@@ -935,7 +933,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 /*иначе сложнее. будем искать максимально глубоко вложенную категорию только внутри категории типа каталог */
 
                 $query
-                    ->select($db->quoteName('#__hikashop_category.category_canonical'))
+                    ->select($db->quoteName('category_canonical'))
                     ->from($db->quoteName('#__hikashop_category'))
                     ->where($db->quoteName('category_id') . ' = ' . $db->quote($this->id_main_category))
                 ;
@@ -946,7 +944,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->select($db->quoteName('category_id'))
                     ->from($db->quoteName('#__hikashop_product_category'))
-                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($prod_data->product_id))
+                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id))
                 ;
                 $db->setQuery($query);
                 $product_categories = $db->loadAssocList();//все категории продукта
@@ -972,20 +970,18 @@ class plgHikashopTwinmenu extends JPlugin {
                     ->select($db->quoteName('category_canonical'))
                     ->from($db->quoteName('#__hikashop_category'))
                     ->where($db->quoteName('category_id') . ' = ' . $db->quote($cat_datas[0][0]))
-                    //->where($db->quoteName('category_depth') . ' = ' . $db->quote($depths[0][0]))
-                    //->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'))
                 ;
                 $db->setQuery($query);
                 $category_canonical  = $db->loadResult();//канонический категории (каталог) наибольшей вложенности
                 $query->clear();
 
 
-                if (!preg_match("/^[0-9]{1}/", $prod_data->product_name)) {
+                if (!preg_match("/^[0-9]{1}/", $product_data->product_name)) {
                     /*на основе канонической ссылки категории, получаем алиас товара*/
-                    $product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($prod_data->product_name, 'ru-RU'); //каноничский продукта
+                    $product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($product_data->product_name, 'ru-RU'); //каноничский продукта
                 } else {
                     /*на основе канонической ссылки категории, получаем алиас товара*/
-                    $product_canonical = $category_canonical . '/p' . JApplicationHelper::stringURLSafe($prod_data->product_name, 'ru-RU'); //каноничский продукта
+                    $product_canonical = $category_canonical . '/p' . JApplicationHelper::stringURLSafe($product_data->product_name, 'ru-RU'); //каноничский продукта
                 }
 
                 $fields = array(
@@ -995,7 +991,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->update('#__hikashop_product')
                     ->set($fields)
-                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($prod_data->product_id));
+                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id));
                 $db->setQuery($query);
                 $db->execute();
                 $query->clear();
