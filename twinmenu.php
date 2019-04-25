@@ -45,6 +45,7 @@ class plgHikashopTwinmenu extends JPlugin {
     protected $jconfig;
     protected $siteName;
     protected $siteDesc;
+    protected $MetaKeys;
     protected $categoryMetaKeywords;
 
 
@@ -79,6 +80,7 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->jconfig =& JFactory::getConfig();
         $this->siteName = htmlspecialchars($this->jconfig->get('sitename'));
         $this->siteDesc = htmlspecialchars($this->jconfig->get('MetaDesc'));
+        $this->MetaKeys= htmlspecialchars($this->jconfig->get('MetaKeys'));
 
         $this->categoryMetaKeywords = $this->params->get('categoryMetaKeywords', null);
 
@@ -136,20 +138,41 @@ class plgHikashopTwinmenu extends JPlugin {
             $category_canonical = $parent_canonical . '/' . $full_alias;//canonical категории = "canonical родительской категории/алиас категории"
 
             if ($this->categoryMetaKeywords == "1") {
-                if ($parent_alias) {
-                    $keywords_category = $parent_alias.', '.$category_alias.', '.$element->category_name;
-                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$parent_alias.', '.$element->category_name.', '.$category_alias;
+
+                $add_key = $element->category_name.', '.$this->MetaKeys;
+                $add_meta = $element->category_name.'. '.$this->siteDesc; //.'. '.$this->siteName
+
+                if ($element->category_keywords == "" && $element->category_meta_description == "") {
+                    $keywords_category = $add_key;
+                    $meta_category = $add_meta;
                 } else {
-                    $keywords_category = $category_alias.', '.$element->category_name;
-                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$element->category_name.', '.$category_alias;
+                    $tmp_key = $element->category_keywords;
+                    $tmp_new_key = $tmp_key.', '.$add_key;
+                    if ($tmp_new_key != $tmp_key) {
+                        $keywords_category = $tmp_key;
+                    } else {
+                        $keywords_category = $tmp_new_key;
+                    }
+
+                    $tmp_meta = $element->category_meta_description;
+                    $tmp_meta_new = $tmp_meta . ', '.$add_meta;
+
+
+                    if ($tmp_meta_new != $tmp_meta) {
+                        $meta_category = $tmp_meta;
+                    } else {
+                        $meta_category = $tmp_meta_new;
+                    }
                 }
+
                 $fields = array(
                     $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
                     $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
                     $db->quoteName('category_keywords') . ' = ' . $db->quote($keywords_category),
                     $db->quoteName('category_meta_description') . ' = ' . $db->quote($meta_category)
                 );
-            } else {
+            }
+            else {
                 $fields = array(
                     $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
                     $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical)
@@ -401,20 +424,41 @@ class plgHikashopTwinmenu extends JPlugin {
             $category_canonical =  $parent_canonical . '/' . $full_alias;//canonical категории = "canonical родительской категории/алиас категории"
 
             if ($this->categoryMetaKeywords == "1") {
-                if ($parent_alias) {
-                    $keywords_category = $parent_alias.', '.$category_alias.', '.$element->category_name;
-                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$parent_alias.', '.$element->category_name.', '.$category_alias;
+
+                $add_key = $element->category_name.', '.$this->MetaKeys;
+                $add_meta = $element->category_name.'. '.$this->siteDesc; //.'. '.$this->siteName
+
+                if ($element->category_keywords == "" && $element->category_meta_description == "") {
+                    $keywords_category = $add_key;
+                    $meta_category = $add_meta;
                 } else {
-                    $keywords_category = $category_alias.', '.$element->category_name;
-                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$element->category_name.', '.$category_alias;
+                    $tmp_key = $element->category_keywords;
+                    $tmp_new_key = $tmp_key.', '.$add_key;
+                    if ($tmp_new_key != $tmp_key) {
+                        $keywords_category = $tmp_key;
+                    } else {
+                        $keywords_category = $tmp_new_key;
+                    }
+
+                    $tmp_meta = $element->category_meta_description;
+                    $tmp_meta_new = $tmp_meta . ', '.$add_meta;
+
+
+                    if ($tmp_meta_new != $tmp_meta) {
+                        $meta_category = $tmp_meta;
+                    } else {
+                        $meta_category = $tmp_meta_new;
+                    }
                 }
+
                 $fields = array(
                     $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
                     $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
                     $db->quoteName('category_keywords') . ' = ' . $db->quote($keywords_category),
                     $db->quoteName('category_meta_description') . ' = ' . $db->quote($meta_category)
                 );
-            } else {
+            }
+            else {
                 $fields = array(
                     $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
                     $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical)
@@ -763,20 +807,41 @@ class plgHikashopTwinmenu extends JPlugin {
 
 
                 if ($this->categoryMetaKeywords == "1") {
-                    if ($parent_alias) {
-                        $keywords_category = $parent_alias.', '.$category_alias.', '.$category->category_name;
-                        $meta_category = $this->siteName.', '.$this->siteDesc.', '.$parent_alias.', '.$category->category_name.', '.$category_alias;
+
+                    $add_key = $category->category_name.', '.$this->MetaKeys;
+                    $add_meta = $category->category_name.'. '.$this->siteDesc; //.'. '.$this->siteName
+
+                    if ($category->category_keywords == "" && $category->category_meta_description == "") {
+                        $keywords_category = $add_key;
+                        $meta_category = $add_meta;
                     } else {
-                        $keywords_category = $category_alias.', '.$category->category_name;
-                        $meta_category = $this->siteName.', '.$this->siteDesc.', '.$category->category_name.', '.$category_alias;
+                        $tmp_key = $category->category_keywords;
+                        $tmp_new_key = $tmp_key.', '.$add_key;
+                        if ($tmp_new_key != $tmp_key) {
+                            $keywords_category = $tmp_key;
+                        } else {
+                            $keywords_category = $tmp_new_key;
+                        }
+
+                        $tmp_meta = $category->category_meta_description;
+                        $tmp_meta_new = $tmp_meta . ', '.$add_meta;
+
+
+                        if ($tmp_meta_new != $tmp_meta) {
+                            $meta_category = $tmp_meta;
+                        } else {
+                            $meta_category = $tmp_meta_new;
+                        }
                     }
+
                     $fields = array(
                         $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
                         $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
                         $db->quoteName('category_keywords') . ' = ' . $db->quote($keywords_category),
                         $db->quoteName('category_meta_description') . ' = ' . $db->quote($meta_category)
                     );
-                } else {
+                }
+                else {
                     $fields = array(
                         $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
                         $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical)
