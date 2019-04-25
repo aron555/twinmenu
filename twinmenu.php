@@ -41,7 +41,11 @@ class plgHikashopTwinmenu extends JPlugin {
     protected $conditions_menu;
     protected $create_category;
     protected $mass_update;
-    protected $config;
+    protected $hika_config;
+    protected $jconfig;
+    protected $siteName;
+    protected $siteDesc;
+    protected $categoryMetaKeywords;
 
 
     public function plgHikashopTwinmenu(&$subject, $config)
@@ -68,9 +72,15 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->mass_update = $this->params->get('mass_update', null);
 
         //$this->id_main_category = $this->params->get('id_main_category', null);//категория типа каталог
-        $this->config = hikashop_config();
-        $default_params = $this->config->get('default_params', '');//
+        $this->hika_config = hikashop_config();
+        $default_params = $this->hika_config->get('default_params', '');//
         $this->id_main_category = $default_params['selectparentlisting'];//Главная категория
+
+        $this->jconfig =& JFactory::getConfig();
+        $this->siteName = htmlspecialchars($this->jconfig->get('sitename'));
+        $this->siteDesc = htmlspecialchars($this->jconfig->get('MetaDesc'));
+
+        $this->categoryMetaKeywords = $this->params->get('categoryMetaKeywords', null);
 
 
         if ($this->mass_update == "1") {
@@ -125,13 +135,26 @@ class plgHikashopTwinmenu extends JPlugin {
 
             $category_canonical = $parent_canonical . '/' . $full_alias;//canonical категории = "canonical родительской категории/алиас категории"
 
-
-            $fields = array(
-                $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
-                $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
-                //$db->quoteName('category_keywords') . ' = ' . $db->quote($parent_alias.', '.$category_alias.', '.$category->category_name),
-                //$db->quoteName('category_meta_description') . ' = ' . $db->quote($parent_alias.' '.$category_alias.' '.$category->category_name)
-            );
+            if ($this->categoryMetaKeywords == "1") {
+                if ($parent_alias) {
+                    $keywords_category = $parent_alias.', '.$category_alias.', '.$element->category_name;
+                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$parent_alias.', '.$element->category_name.', '.$category_alias;
+                } else {
+                    $keywords_category = $category_alias.', '.$element->category_name;
+                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$element->category_name.', '.$category_alias;
+                }
+                $fields = array(
+                    $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                    $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
+                    $db->quoteName('category_keywords') . ' = ' . $db->quote($keywords_category),
+                    $db->quoteName('category_meta_description') . ' = ' . $db->quote($meta_category)
+                );
+            } else {
+                $fields = array(
+                    $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                    $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical)
+                );
+            }
 
             $query
                 ->update('#__hikashop_category')
@@ -210,7 +233,8 @@ class plgHikashopTwinmenu extends JPlugin {
                     ->from($db->quoteName("#__menu"))
                     ->where($conditions)
                     ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
-                    ->where($db->quoteName('published') . ' >=  ' . $db->quote('0'));
+                    ->where($db->quoteName('published') . ' >=  ' . $db->quote('0'))
+                ;
 
                 $db->setQuery($query);
                 $menu_datas = $db->loadAssoc();/*Ищем пункт меню с этой категорией */
@@ -229,22 +253,24 @@ class plgHikashopTwinmenu extends JPlugin {
                         mb_internal_encoding("UTF-8");
                         $main_category_path = mb_substr($main_category_canonical, '1');//$category_path это каноникал категории без начального /
 
+
                         if (strpos($menu_datas["path"], $main_category_path) !== false) // если в path меню содержится каноническая ссылка каталога
                         {
                             $menu_show = "1";
                         } else {
                             $menu_show = "0";
+
                         }
                     } else {
                         $menu_show = "1";
                     }
 
                     if ($this->hika_type_menu == "category") { //если выбрана категория, то добавляем для нее параметры
-                        $hika_type = '{"hk_category":{"layout_type":"div","columns":"' . $this->cols_cat . '","rows":"' . $this->rows_cat . '","limit":"' . $this->cols_cat * $this->rows_cat . '","div_item_layout_type":"' . $this->div_item_layout_type . '","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","ul_display_simplelist":"0","show_image":"0","show_description":"' . $this->show_description . '","category":"' . $element->category_id . '","category_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","child_display_type":"inherit","child_limit":"","number_of_products":"-1","only_if_products":"-1"},"hk_product":{"layout_type":"inherit","columns":"' . $this->cols_pr . '","rows":"' . $this->rows_pr . '","limit":"' . $this->cols_pr * $this->rows_pr . '","div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"2","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","product_waitlist":"0","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":' . $menu_show . ',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0}';
+                        $hika_type = '{"hk_category":{"layout_type":"div","columns":"'.$this->cols_cat.'","rows":"'.$this->rows_cat.'","limit":"'.$this->cols_cat*$this->rows_cat.'","div_item_layout_type":"'.$this->div_item_layout_type.'","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","ul_display_simplelist":"0","show_image":"0","show_description":"'.$this->show_description.'","category":"'.$element->category_id.'","category_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","child_display_type":"inherit","child_limit":"","number_of_products":"-1","only_if_products":"-1"},"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.'","div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"2","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","product_waitlist":"0","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":'.$menu_show.',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"'.$meta_category.'","menu-meta_keywords":"'.$keywords_category.'","robots":"","secure":0}';
                         $link = 'index.php?option=com_hikashop&view=category&layout=listing';
                     }
                     if ($this->hika_type_menu == "product") {
-                        $hika_type = '{"hk_product":{"layout_type":"inherit","columns":"' . $this->cols_pr . '","rows":"' . $this->rows_pr . '","limit":"' . $this->cols_pr * $this->rows_pr . ',"div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","show_image":"0","show_description":"0","category":"' . $element->category_id . '","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","recently_viewed":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":' . $menu_show . ',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0}';
+                        $hika_type = '{"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.',"div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","show_image":"0","show_description":"0","category":"'.$element->category_id.'","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","recently_viewed":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":'.$menu_show.',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"'.$meta_category.'","menu-meta_keywords":"'.$keywords_category.'","robots":"","secure":0}';
                         $link = 'index.php?option=com_hikashop&view=product&layout=listing';
                     }
 
@@ -374,13 +400,26 @@ class plgHikashopTwinmenu extends JPlugin {
 
             $category_canonical =  $parent_canonical . '/' . $full_alias;//canonical категории = "canonical родительской категории/алиас категории"
 
-
-            $fields = array(
-                $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
-                $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
-                //$db->quoteName('category_keywords') . ' = ' . $db->quote($parent_alias.', '.$category_alias.', '.$category->category_name),
-                //$db->quoteName('category_meta_description') . ' = ' . $db->quote($parent_alias.' '.$category_alias.' '.$category->category_name)
-            );
+            if ($this->categoryMetaKeywords == "1") {
+                if ($parent_alias) {
+                    $keywords_category = $parent_alias.', '.$category_alias.', '.$element->category_name;
+                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$parent_alias.', '.$element->category_name.', '.$category_alias;
+                } else {
+                    $keywords_category = $category_alias.', '.$element->category_name;
+                    $meta_category = $this->siteName.', '.$this->siteDesc.', '.$element->category_name.', '.$category_alias;
+                }
+                $fields = array(
+                    $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                    $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
+                    $db->quoteName('category_keywords') . ' = ' . $db->quote($keywords_category),
+                    $db->quoteName('category_meta_description') . ' = ' . $db->quote($meta_category)
+                );
+            } else {
+                $fields = array(
+                    $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                    $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical)
+                );
+            }
 
             $query
                 ->update('#__hikashop_category')
@@ -404,21 +443,8 @@ class plgHikashopTwinmenu extends JPlugin {
                 $main_category_canonical  = $db->loadResult();//каноническая ссылка категории типа каталог
                 $query->clear();
 
-                $query
-                    ->select($db->quoteName("path"))
-                    ->from($db->quoteName("#__menu"))
-                    ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $element->category_id . '\"%'))
-                    ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
-                    //->where($db->quoteName('published')  . ' >=  '. $db->quote('0'))
-                ;
-                $db->setQuery($query);
-                $menu_path  = $db->loadResult();//path родительского пункта меню
-                $query->clear();
 
-                mb_internal_encoding("UTF-8");
-                $main_category_path = mb_substr($main_category_canonical, '1');//$category_path это каноникал категории без начального /
-
-                if (strpos($menu_path, $main_category_path) !== false) //если каноническая ссылка типа каталог является частью path родительского пункта меню
+                if (strpos($element->category_canonical, $main_category_canonical) !== false) //если каноническая ссылка типа каталог является частью канонической ссылки категории
                 {
                     $menu_show = "1";
                 } else {
@@ -429,11 +455,11 @@ class plgHikashopTwinmenu extends JPlugin {
             }
 
             if ($this->hika_type_menu == "category") { //если выбрана категория, то добавляем для нее параметры
-                $hika_type = '{"hk_category":{"layout_type":"div","columns":"'.$this->cols_cat.'","rows":"'.$this->rows_cat.'","limit":"'.$this->cols_cat*$this->rows_cat.'","div_item_layout_type":"'.$this->div_item_layout_type.'","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","ul_display_simplelist":"0","show_image":"0","show_description":"'.$this->show_description.'","category":"'.$element->category_id.'","category_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","child_display_type":"inherit","child_limit":"","number_of_products":"-1","only_if_products":"-1"},"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.'","div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"2","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","product_waitlist":"0","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":'.$menu_show.',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0}';
+                $hika_type = '{"hk_category":{"layout_type":"div","columns":"'.$this->cols_cat.'","rows":"'.$this->rows_cat.'","limit":"'.$this->cols_cat*$this->rows_cat.'","div_item_layout_type":"'.$this->div_item_layout_type.'","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","ul_display_simplelist":"0","show_image":"0","show_description":"'.$this->show_description.'","category":"'.$element->category_id.'","category_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","child_display_type":"inherit","child_limit":"","number_of_products":"-1","only_if_products":"-1"},"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.'","div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"2","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","product_waitlist":"0","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":'.$menu_show.',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"'.$meta_category.'","menu-meta_keywords":"'.$keywords_category.'","robots":"","secure":0}';
                 $link = 'index.php?option=com_hikashop&view=category&layout=listing';
             }
             if ($this->hika_type_menu == "product") {
-                $hika_type = '{"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.',"div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","show_image":"0","show_description":"0","category":"'.$element->category_id.'","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","recently_viewed":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":'.$menu_show.',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0}';
+                $hika_type = '{"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.',"div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","show_image":"0","show_description":"0","category":"'.$element->category_id.'","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"0","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","recently_viewed":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":'.$menu_show.',"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"'.$meta_category.'","menu-meta_keywords":"'.$keywords_category.'","robots":"","secure":0}';
                 $link = 'index.php?option=com_hikashop&view=product&layout=listing';
             }
 
@@ -510,8 +536,6 @@ class plgHikashopTwinmenu extends JPlugin {
 
             if(!is_array($element->categories)) $element->categories = array($element->categories);
             hikashop_toInteger($element->categories);
-
-
 
             //Если у продукта всего одна категория, то все просто, берем ее
             if (count($element->categories) == 1) {
@@ -736,12 +760,28 @@ class plgHikashopTwinmenu extends JPlugin {
             $category_canonical =  $parent_canonical . '/' . $full_alias;//canonical категории = canonical родительской категории + алиас категории
 
             if ($this->update_category == "1") {//если алиасы и канонические категорий нужно обновить
-                $fields = array(
-                    $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
-                    $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
-                    //$db->quoteName('category_keywords') . ' = ' . $db->quote($parent_alias.', '.$category_alias.', '.$category->category_name),
-                    //$db->quoteName('category_meta_description') . ' = ' . $db->quote($parent_alias.' '.$category_alias.' '.$category->category_name)
-                );
+
+
+                if ($this->categoryMetaKeywords == "1") {
+                    if ($parent_alias) {
+                        $keywords_category = $parent_alias.', '.$category_alias.', '.$category->category_name;
+                        $meta_category = $this->siteName.', '.$this->siteDesc.', '.$parent_alias.', '.$category->category_name.', '.$category_alias;
+                    } else {
+                        $keywords_category = $category_alias.', '.$category->category_name;
+                        $meta_category = $this->siteName.', '.$this->siteDesc.', '.$category->category_name.', '.$category_alias;
+                    }
+                    $fields = array(
+                        $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                        $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical),
+                        $db->quoteName('category_keywords') . ' = ' . $db->quote($keywords_category),
+                        $db->quoteName('category_meta_description') . ' = ' . $db->quote($meta_category)
+                    );
+                } else {
+                    $fields = array(
+                        $db->quoteName('category_alias') . ' = ' . $db->quote($full_category_alias),
+                        $db->quoteName('category_canonical') . ' = ' . $db->quote($category_canonical)
+                    );
+                }
 
                 $query
                     ->update('#__hikashop_category')
