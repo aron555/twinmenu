@@ -77,7 +77,7 @@ class plgHikashopTwinmenu extends JPlugin {
         $default_params = $this->hika_config->get('default_params', '');//
         $this->id_main_category = $default_params['selectparentlisting'];//Главная категория
 
-        $this->jconfig =& JFactory::getConfig();
+        $this->jconfig = JFactory::getConfig();
         $this->siteName = htmlspecialchars($this->jconfig->get('sitename'));
         $this->siteDesc = htmlspecialchars($this->jconfig->get('MetaDesc'));
         $this->MetaKeys= htmlspecialchars($this->jconfig->get('MetaKeys'));
