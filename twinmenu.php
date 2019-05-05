@@ -47,11 +47,14 @@ class plgHikashopTwinmenu extends JPlugin {
     protected $siteDesc;
     protected $MetaKeys;
     protected $categoryMetaKeywords;
+    protected $product_meta_description_and_keywords;
+    protected $exclude;
 
 
     public function plgHikashopTwinmenu(&$subject, $config)
     {
         parent::__construct($subject, $config);
+        mb_internal_encoding("UTF-8");
         $this->menu = $this->params->get('menu', null);
         $this->component_id = JComponentHelper::getComponent('com_hikashop')->id;
         $this->update_product = $this->params->get('update_product', null);
@@ -83,6 +86,22 @@ class plgHikashopTwinmenu extends JPlugin {
         $this->MetaKeys= htmlspecialchars($this->jconfig->get('MetaKeys'));
 
         $this->categoryMetaKeywords = $this->params->get('categoryMetaKeywords', null);
+        $this->product_meta_description_and_keywords = $this->params->get('product_meta_description_and_keywords', null);
+
+        $pretexts = array("в", "без", "до", "из", "к", "на", "по", "о", "от", "перед", "при", "через", "с", "у", "и", "нет", "за", "над", "для", "об", "под", "про");
+
+        function add_spaces(&$value)
+        {
+            $value = " ".$value." ";
+        }
+
+        array_walk($pretexts, 'add_spaces');
+        $this->exclude = $pretexts;
+
+        /*foreach($pretexts as $pretext)
+        {
+            $this->exclude[] = " ".$pretext." ";
+        }*/
 
 
         if ($this->mass_update == "1") {
@@ -139,7 +158,12 @@ class plgHikashopTwinmenu extends JPlugin {
 
             if ($this->categoryMetaKeywords == "1") {
 
-                $add_key = $element->category_name.', '.$this->MetaKeys;
+                $category_keywords_text_full = trim(strip_tags($element->category_name));
+                $category_keywords_text = str_replace($this->exclude, ' ', $category_keywords_text_full);
+                $category_keywords_array = explode(" ", $category_keywords_text);
+                $category_keywords = implode(", ", $category_keywords_array);
+
+                $add_key = $category_keywords.', '.$this->MetaKeys;
                 $add_meta = $element->category_name.'. '.$this->siteDesc; //.'. '.$this->siteName
 
                 if ($element->category_keywords == "" && $element->category_meta_description == "") {
@@ -213,8 +237,6 @@ class plgHikashopTwinmenu extends JPlugin {
                             $new_product_canonical = $category_canonical . '/p' . JApplicationHelper::stringURLSafe($all_product->product_name, 'ru-RU'); //каноничский продукта
                         }
 
-                        //$new_product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($all_product->product_name, 'ru-RU'); //каноничский продукта
-
                         $fields = array(
                             $db->quoteName('product_canonical') . ' = ' . $db->quote($new_product_canonical)
                         );
@@ -239,7 +261,6 @@ class plgHikashopTwinmenu extends JPlugin {
                 }
                 /*(есть такие пункты меню, где проставляли категории вручную и забыли категорию)*/
                 if ($this->conditions_menu == "path") {
-                    mb_internal_encoding("UTF-8");
                     $category_path = mb_substr($element->category_canonical, '1');//$category_path это каноникал категории без начального /
                     $conditions = $db->quoteName('path') . ' = ' . $db->quote($category_path);
                 }
@@ -273,7 +294,6 @@ class plgHikashopTwinmenu extends JPlugin {
                         $main_category_canonical = $db->loadResult();//каноническая ссылка категории типа каталог
                         $query->clear();
 
-                        mb_internal_encoding("UTF-8");
                         $main_category_path = mb_substr($main_category_canonical, '1');//$category_path это каноникал категории без начального /
 
 
@@ -339,7 +359,6 @@ class plgHikashopTwinmenu extends JPlugin {
 
         foreach ($ids as $id) {
 
-            mb_internal_encoding("UTF-8");
             $category_path = mb_substr($id->category_canonical, '1');//$category_path это каноникал категории без начального /
 
             $query
@@ -425,7 +444,12 @@ class plgHikashopTwinmenu extends JPlugin {
 
             if ($this->categoryMetaKeywords == "1") {
 
-                $add_key = $element->category_name.', '.$this->MetaKeys;
+                $category_keywords_text_full = trim(strip_tags($element->category_name));
+                $category_keywords_text = str_replace($this->exclude, ' ', $category_keywords_text_full);
+                $category_keywords_array = explode(" ", $category_keywords_text);
+                $category_keywords = implode(", ", $category_keywords_array);
+
+                $add_key = $category_keywords.', '.$this->MetaKeys;
                 $add_meta = $element->category_name.'. '.$this->siteDesc; //.'. '.$this->siteName
 
                 if ($element->category_keywords == "" && $element->category_meta_description == "") {
@@ -579,7 +603,10 @@ class plgHikashopTwinmenu extends JPlugin {
             $query = $db->getQuery(true);
 
             if(!is_array($element->categories)) $element->categories = array($element->categories);
-            hikashop_toInteger($element->categories);
+            if(is_array($element->categories))
+                $element->categories = array_map('intval', $element->categories);
+            else
+                $element->categories = array();
 
             //Если у продукта всего одна категория, то все просто, берем ее
             if (count($element->categories) == 1) {
@@ -649,12 +676,16 @@ class plgHikashopTwinmenu extends JPlugin {
     {
         if (!empty($element->product_id) && $this->update_product == "1" && $this->app->isClient('administrator')) {
 
-
             $db = JFactory::getDBO();
             $query = $db->getQuery(true);
 
             if(!is_array($element->categories)) $element->categories = array($element->categories);
-            hikashop_toInteger($element->categories);
+
+            if(is_array($element->categories))
+                $element->categories = array_map('intval', $element->categories);
+            else
+                $element->categories = array();
+
 
             $query
                 ->select($db->quoteName('category_canonical'))
@@ -674,7 +705,6 @@ class plgHikashopTwinmenu extends JPlugin {
                 $db->setQuery($query);
                 $category_canonical = $db->loadResult();
                 $query->clear();
-
 
             } else {
                 /*иначе сложнее. будем искать максимально глубоко вложенную категорию только внутри категории типа каталог */
@@ -709,17 +739,37 @@ class plgHikashopTwinmenu extends JPlugin {
                     /*на основе канонической ссылки категории, получаем алиас товара*/
                     $product_canonical = $category_canonical . '/' . JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //каноничский продукта
                 } else {
-                    $product_alias = "p".JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //алиас продукта
+                    $product_alias = "p" . JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //алиас продукта
                     /*на основе канонической ссылки категории, получаем алиас товара*/
                     $product_canonical = $category_canonical . '/p' . JApplicationHelper::stringURLSafe($element->product_name, 'ru-RU'); //каноничский продукта
                 }
 
+                if ($this->product_meta_description_and_keywords == "1" && $this->hika_config->get('auto_keywords_and_metadescription_filling') == "0" && $element->product_description == "") { //
 
+                    $max_size_of_metadescription = $this->hika_config->get('max_size_of_metadescription');
+                    $product_meta_description_text = trim(strip_tags($element->product_description));
+                    $product_meta_description = mb_strimwidth($product_meta_description_text, 0, $max_size_of_metadescription);
 
-                $fields = array(
-                    $db->quoteName('product_alias') . ' = ' . $db->quote($product_alias),
-                    $db->quoteName('product_canonical') . ' = ' . $db->quote($product_canonical)
-                );
+                    $keywords_number = $this->hika_config->get('keywords_number');
+                    $product_keywords_text_full = trim(strip_tags($element->product_description));
+                    $product_keywords_text = str_replace($this->exclude, ' ', $product_keywords_text_full);
+                    $product_keywords_array = explode(" ", $product_keywords_text);
+                    $words = array_slice($product_keywords_array, 0, $keywords_number, true);
+                    $product_keywords = implode(", ", $words);
+
+                    $fields = array(
+                        $db->quoteName('product_alias') . ' = ' . $db->quote($product_alias),
+                        $db->quoteName('product_canonical') . ' = ' . $db->quote($product_canonical),
+                        $db->quoteName('product_meta_description') . ' = ' . $db->quote($product_meta_description),
+                        $db->quoteName('product_keywords') . ' = ' . $db->quote($product_keywords)
+                    );
+
+                } else {
+                    $fields = array(
+                        $db->quoteName('product_alias') . ' = ' . $db->quote($product_alias),
+                        $db->quoteName('product_canonical') . ' = ' . $db->quote($product_canonical)
+                    );
+                }
 
                 $query
                     ->update('#__hikashop_product')
@@ -808,7 +858,12 @@ class plgHikashopTwinmenu extends JPlugin {
 
                 if ($this->categoryMetaKeywords == "1") {
 
-                    $add_key = $category->category_name.', '.$this->MetaKeys;
+                    $category_keywords_text_full = trim(strip_tags($category->category_name));
+                    $category_keywords_text = str_replace($this->exclude, ' ', $category_keywords_text_full);
+                    $category_keywords_array = explode(" ", $category_keywords_text);
+                    $category_keywords = implode(", ", $category_keywords_array);
+
+                    $add_key = $category_keywords.', '.$this->MetaKeys;
                     $add_meta = $category->category_name.'. '.$this->siteDesc; //.'. '.$this->siteName
 
                     if ($category->category_keywords == "" && $category->category_meta_description == "") {
@@ -871,7 +926,6 @@ class plgHikashopTwinmenu extends JPlugin {
                 $link = 'index.php?option=com_hikashop&view=product&layout=listing';
             }
 
-            mb_internal_encoding("UTF-8");
             $category_path = mb_substr($category->category_canonical, '1');//$category_path это каноникал категории без начального /
 
             //Нужно проверить, есть ли уже такой пункт меню
@@ -942,7 +996,6 @@ class plgHikashopTwinmenu extends JPlugin {
 
                     }
                 }
-
 
             } else {// если пункт меню с нужной категорией существует и его нужно обновить
                 $count_menu_exists++;
@@ -1096,6 +1149,33 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->update('#__hikashop_product')
                     ->set($fields)
+                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id));
+                $db->setQuery($query);
+                $db->execute();
+                $query->clear();
+
+            }
+
+            if ($this->product_meta_description_and_keywords == "1" && $this->hika_config->get('auto_keywords_and_metadescription_filling') == "0" && $product_data->product_description != "") { //
+                $product_description_text = ltrim(strip_tags($product_data->product_description));
+
+                $max_size_of_metadescription = $this->hika_config->get('max_size_of_metadescription');
+                $product_meta_description = mb_strimwidth($product_description_text, 0, $max_size_of_metadescription);
+
+                $keywords_number = $this->hika_config->get('keywords_number');
+                $product_keywords_text = str_replace($this->exclude, ' ', $product_description_text);
+                $product_keywords_array = explode(" ", $product_keywords_text);
+                $words = array_slice($product_keywords_array, 0, $keywords_number, true);
+                $product_keywords = implode(", ", $words);
+
+                $fields_product_meta_key = array(
+                    $db->quoteName('product_meta_description') . ' = ' . $db->quote($product_meta_description),
+                    $db->quoteName('product_keywords') . ' = ' . $db->quote($product_keywords)
+                );
+
+                $query
+                    ->update('#__hikashop_product')
+                    ->set($fields_product_meta_key)
                     ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id));
                 $db->setQuery($query);
                 $db->execute();
