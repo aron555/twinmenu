@@ -179,6 +179,17 @@
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
+
+                <field name="product_meta_description_and_keywords" type="radio"
+                       default="0"
+                       class="btn-group btn-group-yesno"
+                       label="PLG_HIKASHOP_TWINMENU_PRODUCT_META_DESCRIPTION_AND_KEYWORDS"
+                       description="PLG_HIKASHOP_TWINMENU_PRODUCT_META_DESCRIPTION_AND_KEYWORDS_DESCRIPTION"
+                >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
             </fieldset>
 
             <fieldset name="type_category" label="Настройки тип пункта меню Категория">
