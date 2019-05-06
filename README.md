@@ -1,4 +1,4 @@
-# twinmenu
+# twinmenu for hikashop
 EN:
 Plugin to automatically fill aliases and canonical addresses in categories and products hikashop and create menu items with categories
 
