@@ -241,6 +241,27 @@
                     <option value="img_title">PLG_HIKASHOP_TWINMENU_LAYOUT_TYPE_IMG_TITLE</option>
                 </field>
 
+                <field
+                        name="category_description_heading"
+                        type="list"
+                        label="PLG_HIKASHOP_TWINMENU_CATEGORY_DESCRIPTION_HEADING"
+                        required="false"
+                        default="1"
+                >
+                    <option value="1">h1</option>
+                    <option value="2">h2</option>
+                    <option value="3">h3</option>
+                    <option value="4">h4</option>
+                    <option value="5">h5</option>
+                    <option value="6">h6</option>
+                </field>
+
+                <field name="category_page_title_before_words" type="text" size="50" default="Купить" label="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_TITLE_BEFORE_WORDS" description="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_TITLE_BEFORE_WORDS_DESCRIPTION" />
+                <field name="category_page_title_after_words" type="text" size="50" default="выгодно" label="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_TITLE_AFTER_WORDS" description="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_TITLE_AFTER_WORDS_DESCRIPTION" />
+
+                <field name="category_page_meta_description_before_words" type="text" size="50" default="Магазин" label="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_META_DESCRIPTION_BEFORE_WORDS" description="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_META_DESCRIPTION_BEFORE_WORDS_DESCRIPTION" />
+                <field name="category_page_meta_description_after_words" type="text" size="50" default="Заказать сейчас" label="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_META_DESCRIPTION_AFTER_WORDS" description="PLG_HIKASHOP_TWINMENU_CATEGORY_PAGE_META_DESCRIPTION_AFTER_WORDS_DESCRIPTION" />
+
             </fieldset>
 
 
