@@ -1070,17 +1070,6 @@ class plgHikashopTwinmenu extends JPlugin {
                         $db->setQuery($query);
                         $data = $db->loadAssoc();
                         $parent_id = $data["id"];
-
-                        var_dump($query);
-                        echo "<br>";
-                        var_dump($category->category_name);
-						echo "<br>";
-						var_dump($category->category_parent_id);
-						echo "<br>";
-						var_dump($data);
-						echo "<br>";
-
-
 					}
 
                     $menuTable->setLocation((int)$parent_id, 'last-child');
@@ -1099,10 +1088,6 @@ class plgHikashopTwinmenu extends JPlugin {
                         $count_menu_new++;
 
                     }
-
-                    var_dump($menuTable);
-					echo "<br>";
-					echo "<br>";
                 }
 
             } else {// если пункт меню с нужной категорией существует и его нужно обновить
