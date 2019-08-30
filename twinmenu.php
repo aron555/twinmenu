@@ -296,7 +296,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 /*теперь на основе каноничкого адреса категории создадим пункт меню с этой категорией*/
 
                 if ($this->conditions_menu == "params") {
-                    $conditions = $db->quoteName('params') . ' LIKE ' . $db->quote('%\"category\":\"' . $element->category_id . '\"%');//по категории
+                    $conditions = $db->quoteName('params') . ' LIKE ' . $db->quote('%"category":"' . $element->category_id . '"%');//по категории
                 }
                 /*(есть такие пункты меню, где проставляли категории вручную и забыли категорию)*/
                 if ($this->conditions_menu == "path") {
@@ -409,7 +409,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 ->select($db->quoteName(array("id", "title")))
                 ->from($db->quoteName("#__menu"))
                 ->where($db->quoteName('path') . ' = ' . $db->quote($category_path))
-                ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $id . '\"%'))
+                ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%"category":"' . $id . '"%'))
                 ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
                 ->where($db->quoteName('published')  . ' >=  '. $db->quote('0'));
 
@@ -620,7 +620,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->select($db->quoteName("id"))
                     ->from($db->quoteName("#__menu"))
-                    ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $element->category_parent_id . '\"%'))
+                    ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%"category":"' . $element->category_parent_id . '"%'))
                     ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
                     ->where($db->quoteName('published')  . ' >=  '. $db->quote('0'));
 
@@ -867,9 +867,9 @@ class plgHikashopTwinmenu extends JPlugin {
             ->select(array('*'))
             ->from($db->quoteName('#__hikashop_category'))
             ->where($db->quoteName('category_published') . ' = ' . $db->quote('1'))
-            ->where($db->quoteName('category_parent_id') . ' > ' . $db->quote('1'))
+            ->where($db->quoteName('category_parent_id') . ' > ' . $db->quote('0'))
             ->where($db->quoteName('category_type') . ' = ' . $db->quote('product'))
-        ;
+			->order("category_left ASC");
 
         $db->setQuery($query);
         $categories = $db->loadObjectList();//Для всех опубликованных категорий, типа продукт, кроме корневой
@@ -883,18 +883,16 @@ class plgHikashopTwinmenu extends JPlugin {
                 ->select('category_name')
                 ->from($db->quoteName('#__hikashop_category'))
                 //->where($db->quoteName('category_parent_id') . ' > ' . $db->quote('1'))
-                ->where($db->quoteName('category_id') . ' = ' . $db->quote($category->category_parent_id))
-            ;
+                ->where($db->quoteName('category_id') . ' = ' . $db->quote($category->category_parent_id));
 
             $db->setQuery($query);
-            $parent_alias = JApplicationHelper::stringURLSafe($db->loadResult(), 'ru-RU');//получаем alias родительской категории из имени родительской
+            $parent_alias = JApplicationHelper::stringURLSafe($db->loadResult(), 'ru-RU'); //получаем alias родительской категории из имени родительской
             $query->clear();
 
             $query
                 ->select('category_canonical')
                 ->from($db->quoteName('#__hikashop_category'))
-                ->where($db->quoteName('category_id') . ' = ' . $db->quote($category->category_parent_id))
-            ;
+                ->where($db->quoteName('category_id') . ' = ' . $db->quote($category->category_parent_id));
 
             $db->setQuery($query);
             $parent_canonical = $db->loadResult();//получаем canonical родительской категории
@@ -1016,7 +1014,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $link = 'index.php?option=com_hikashop&view=category&layout=listing';
             }
             if ($this->hika_type_menu == "product") {
-                $hika_type = '{"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.',"div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","show_image":"0","show_description":"'.$this->show_description.'","category":"'.$category->category_id.'","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"'.$this->filter_type.'","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","recently_viewed":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":1,"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0}';
+                $hika_type = '{"hk_product":{"layout_type":"inherit","columns":"'.$this->cols_pr.'","rows":"'.$this->rows_pr.'","limit":"'.$this->cols_pr*$this->rows_pr.'","div_item_layout_type":"inherit","image_width":"","image_height":"","product_transition_effect":"linear","product_effect_duration":"","pane_height":"","text_center":"-1","show_description_listing":"0","consistencyheight":"1","infinite_scroll":"0","background_color":"","margin":"","border_visible":"-1","rounded_corners":"-1","ul_class_name":"","show_image":"0","show_description":"'.$this->show_description.'","category":"'.$category->category_id.'","product_order":"inherit","order_dir":"inherit","random":"-1","filter_type":"'.$this->filter_type.'","use_module_name":"0","discounted_only":"0","related_products_from_cart":"0","show_out_of_stock":"-1","recently_viewed":"-1","link_to_product_page":"-1","show_price":"-1","price_display_type":"inherit","price_with_tax":"3","show_original_price":"-1","show_discount":"3","add_to_cart":"-1","add_to_wishlist":"-1","show_quantity_field":"-1","show_vote":"-1","display_custom_item_fields":"-1","display_filters":"-1","display_badges":"-1"},"menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":1,"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0}';
                 $link = 'index.php?option=com_hikashop&view=product&layout=listing';
             }
 
@@ -1026,16 +1024,17 @@ class plgHikashopTwinmenu extends JPlugin {
             $query
                 ->select('*')
                 ->from($db->quoteName('#__menu'))
-                ->where($db->quoteName('params')  . ' LIKE '.  $db->quote('%\"category\":\"' . $category->category_id . '\"%'))
+                ->where($db->quoteName('params')  . " LIKE ".  "'%\"category\":\"" . (int)$category->category_id . "\"%'")
                 //->where($db->quoteName('path') . ' = ' . $db->quote($category_path))
                 ->where($db->quoteName('published') . ' >= ' . $db->quote('0'))
-                ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu))
-            ;
+                ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu));
+
 
             $db->setQuery($query);
             $db->execute();
             $num_menus = $db->getNumRows();
             $data_menu = $db->loadObjectList();
+
             $query->clear();
 
             if ($num_menus == "0") {//если нет пункта меню с нужной категорией
@@ -1064,16 +1063,27 @@ class plgHikashopTwinmenu extends JPlugin {
                         $query
                             ->select($db->quoteName("id"))
                             ->from($db->quoteName("#__menu"))
-                            ->where($db->quoteName('params') . ' LIKE '. $db->quote('%\"category\":\"' . $category->category_parent_id . '\"%'))
+                            ->where($db->quoteName('params') . " LIKE '%\"category\":\"" . (int)$category->category_parent_id . "\"%'")
                             ->where($db->quoteName('published') . ' >= ' . $db->quote('0'))
                             ->where($db->quoteName('menutype') . ' = ' . $db->quote($this->menu));
 
                         $db->setQuery($query);
                         $data = $db->loadAssoc();
                         $parent_id = $data["id"];
-                    }
 
-                    $menuTable->setLocation($parent_id, 'last-child');
+                        var_dump($query);
+                        echo "<br>";
+                        var_dump($category->category_name);
+						echo "<br>";
+						var_dump($category->category_parent_id);
+						echo "<br>";
+						var_dump($data);
+						echo "<br>";
+
+
+					}
+
+                    $menuTable->setLocation((int)$parent_id, 'last-child');
 
                     if (!$menuTable->bind($menuData)) {
                         throw new RuntimeException($menuTable->getError());
@@ -1089,6 +1099,10 @@ class plgHikashopTwinmenu extends JPlugin {
                         $count_menu_new++;
 
                     }
+
+                    var_dump($menuTable);
+					echo "<br>";
+					echo "<br>";
                 }
 
             } else {// если пункт меню с нужной категорией существует и его нужно обновить
@@ -1126,11 +1140,11 @@ class plgHikashopTwinmenu extends JPlugin {
         }
 
 //На основе канонических ссылок категорий, создаем продукт каноникал и записываем его
+		$query = $db->getQuery(true);
         $query
             ->select('*')
             ->from($db->quoteName('#__hikashop_product'))
-            ->where($db->quoteName('product_type') . ' = ' . $db->quote('main'))
-        ;
+            ->where($db->quoteName('product_type') . ' = ' . $db->quote('main'));
         $db->setQuery($query);
         $product_datas = $db->loadObjectList();//all main products
         $query->clear();
@@ -1140,8 +1154,7 @@ class plgHikashopTwinmenu extends JPlugin {
             $query
                 ->select('category_id')
                 ->from($db->quoteName('#__hikashop_product_category'))
-                ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id))
-            ;
+                ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id));
 
             $db->setQuery($query);
             $cat_ids = $db->loadObjectList();//categories for product
@@ -1152,8 +1165,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->select('category_canonical')
                     ->from($db->quoteName('#__hikashop_category'))
-                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($cat_ids[0]->category_id))
-                ;
+                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($cat_ids[0]->category_id));
                 $db->setQuery($query);
                 $category_canonical = $db->loadObjectList();//categories canonical
                 $query->clear();
@@ -1187,8 +1199,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->select($db->quoteName('category_canonical'))
                     ->from($db->quoteName('#__hikashop_category'))
-                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($this->id_main_category))
-                ;
+                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($this->id_main_category));
                 $db->setQuery($query);
                 $main_category_canonical  = $db->loadResult();//каноническая ссылка категории типа каталог
                 $query->clear();
@@ -1196,8 +1207,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->select($db->quoteName('category_id'))
                     ->from($db->quoteName('#__hikashop_product_category'))
-                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id))
-                ;
+                    ->where($db->quoteName('product_id') . ' = ' . $db->quote($product_data->product_id));
                 $db->setQuery($query);
                 $product_categories = $db->loadAssocList();//все категории продукта
                 $query->clear();
@@ -1209,8 +1219,7 @@ class plgHikashopTwinmenu extends JPlugin {
                             ->select('*')
                             ->from($db->quoteName('#__hikashop_category'))
                             ->where($db->quoteName('category_id') . ' = ' . $db->quote($product_cat))
-                            ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'))
-                        ;
+                            ->where($db->quoteName('category_canonical') . ' LIKE ' . $db->quote('%' . $main_category_canonical . '%'));
                         $db->setQuery($query);
                         $cat_datas = $db->loadRowList();//наибольшая вложенность среди всех категорий продукта, но в категории типа каталог
                         $query->clear();
@@ -1221,8 +1230,7 @@ class plgHikashopTwinmenu extends JPlugin {
                 $query
                     ->select($db->quoteName('category_canonical'))
                     ->from($db->quoteName('#__hikashop_category'))
-                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($cat_datas[0][0]))
-                ;
+                    ->where($db->quoteName('category_id') . ' = ' . $db->quote($cat_datas[0][0]));
                 $db->setQuery($query);
                 $category_canonical  = $db->loadResult();//канонический категории (каталог) наибольшей вложенности
                 $query->clear();
@@ -1278,6 +1286,8 @@ class plgHikashopTwinmenu extends JPlugin {
             }
 
         }
+
+        die();
     }
 
 }
