@@ -113,10 +113,10 @@ class plgHikashopTwinmenu extends JPlugin {
             $this->exclude[] = " ".$pretext." ";
         }*/
 
-        $this->category_page_title_before_words = $this->params->get('category_page_title_before_words', null);;
-        $this->category_page_title_after_words = $this->params->get('category_page_title_after_words', null);;
-        $this->category_page_meta_description_before_words = $this->params->get('category_page_meta_description_before_words', null);;
-        $this->category_page_meta_description_after_words = $this->params->get('category_page_meta_description_after_words', null);;
+        $this->category_page_title_before_words = $this->params->get('category_page_title_before_words', null);
+        $this->category_page_title_after_words = $this->params->get('category_page_title_after_words', null);
+        $this->category_page_meta_description_before_words = $this->params->get('category_page_meta_description_before_words', null);
+        $this->category_page_meta_description_after_words = $this->params->get('category_page_meta_description_after_words', null);
 
 
         if ($this->mass_update == "1") {
